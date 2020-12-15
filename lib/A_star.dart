@@ -11,6 +11,7 @@ class Astar {
   Cell start;
   Cell target;
   int cost = null;
+  int expanded = null;
   List<Cell> path = new List<Cell>();
   List<Cell> open_list = new List<Cell>();
   List<Cell> close_list = new List<Cell>();
@@ -23,8 +24,12 @@ class Astar {
     this.lst = lst;
     this.start = Cell.distance(start.getY(), start.getX(), null);
     this.start.setFcost(0);
+    this.start.setGcost(0);
+    this.start.setHcost(0);
     this.target = Cell.distance(target.getY(), target.getX(), null);
     this.target.setFcost(0);
+    this.target.setGcost(0);
+    this.target.setHcost(0);
     this.left = left;
     this.right = right;
     this.up = up;
@@ -32,6 +37,7 @@ class Astar {
   }
 
   int search() {
+    expanded = 1;
     open_list.add(start);
     while (open_list.length > 0) {
       Cell current_node = open_list[0];
@@ -53,23 +59,29 @@ class Astar {
           path.add(current);
           current = current.getParent();
         }
-        return current_node.getFcost();
+        return current_node.getGcost();
       }
       List<Cell> neighbours = new List<Cell>();
       neighbours = getNeighbours(current_node);
       for (var neighbour in neighbours) {
+        int tmpCost = 0;
         if (current_node.getX() - neighbour.getX() == 1)
-          neighbour.setFcost(left + current_node.getFcost());
+          tmpCost = left;
         else if (current_node.getX() - neighbour.getX() == -1)
-          neighbour.setFcost(right + current_node.getFcost());
+          tmpCost = right;
         else if (current_node.getY() - neighbour.getY() == 1)
-          neighbour.setFcost(up + current_node.getFcost());
-        else if (current_node.getY() - neighbour.getY() == -1)
-          neighbour.setFcost(down + current_node.getFcost());
+          tmpCost = up;
+        else if (current_node.getY() - neighbour.getY() == -1) tmpCost = down;
+
+        neighbour.setGcost(current_node.getGcost() + tmpCost);
+        neighbour.setHcost(pow(neighbour.getX() - target.getX(), 2) +
+            pow(neighbour.getY() - target.getY(), 2));
+        neighbour.setFcost(neighbour.getGcost() + neighbour.getHcost());
         for (var open in open_list)
           if (neighbour.getX() == open.getX() &&
               neighbour.getY() == open.getY() &&
-              neighbour.getFcost() > open.getFcost()) continue;
+              neighbour.getGcost() > open.getGcost()) continue;
+        expanded++;
         open_list.add(neighbour);
       }
     }
@@ -93,5 +105,9 @@ class Astar {
 
   List<Cell> getPath() {
     return path;
+  }
+
+  int getExpanded() {
+    return expanded;
   }
 }

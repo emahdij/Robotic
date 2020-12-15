@@ -124,15 +124,17 @@ class _TableState extends State<Table> {
                   : FlatButton(
                       color: color,
                       onPressed: () {
-                        if (tampstart == 0) {
-                          if (maze.addStart(xindex, yindex)) tampstart = 1;
-                        } else if (tmptarget == 0) {
-                          if (maze.addTarget(xindex, yindex)) tmptarget = 1;
-                        } else if (tmpwall < wall) {
-                          if (maze.addWall(xindex, yindex)) tmpwall++;
-                          if (tmpwall == wall) showAlert(context);
+                        if (!isRandon) {
+                          if (tampstart == 0) {
+                            if (maze.addStart(xindex, yindex)) tampstart = 1;
+                          } else if (tmptarget == 0) {
+                            if (maze.addTarget(xindex, yindex)) tmptarget = 1;
+                          } else if (tmpwall < wall) {
+                            if (maze.addWall(xindex, yindex)) tmpwall++;
+                            if (tmpwall == wall) showAlert(context);
+                          }
+                          setState(() {});
                         }
-                        setState(() {});
                       }),
             );
           }),
@@ -158,6 +160,7 @@ class _TableState extends State<Table> {
   }
 
   void showAlert(BuildContext context) async {
+    a_star();
     showDialog<Algorithm>(
         context: context,
         barrierDismissible: true,
@@ -167,7 +170,6 @@ class _TableState extends State<Table> {
                 SimpleDialogOption(
                   onPressed: () {
                     Navigator.pop(context, Algorithm.Astar);
-                    a_star();
                     ackAlert(context);
                     showReuslt();
                   },
